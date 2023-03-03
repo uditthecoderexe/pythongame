@@ -1,42 +1,85 @@
-// Define canvas and context
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-
-// Define player object
-const player = {
-  x: 50,
-  y: 50,
-  speed: 5,
-  width: 50,
-  height: 50,
-  color: "blue"
+// Define game configuration
+const config = {
+  type: Phaser.AUTO,
+  width: 800,
+  height: 600,
+  physics: {
+    default: "arcade",
+    arcade: {
+      gravity: { y: 1000 },
+      debug: false
+    }
+  },
+  scene: {
+    preload: preload,
+    create: create,
+    update: update
+  }
 };
 
-// Define key listener function
-document.addEventListener("keydown", function(event) {
-  if (event.code === "ArrowUp") {
-    player.y -= player.speed;
-  } else if (event.code === "ArrowDown") {
-    player.y += player.speed;
-  } else if (event.code === "ArrowLeft") {
-    player.x -= player.speed;
-  } else if (event.code === "ArrowRight") {
-    player.x += player.speed;
-  }
-});
+// Create game object
+const game = new Phaser.Game(config);
 
-// Define update function
-function update() {
-  // Clear canvas
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
-  // Draw player
-  ctx.fillStyle = player.color;
-  ctx.fillRect(player.x, player.y, player.width, player.height);
-  
-  // Request next frame
-  requestAnimationFrame(update);
+// Define variables
+let player;
+let platforms;
+let cursors;
+let score = 0;
+let scoreText;
+
+// Define preload function
+function preload() {
+  this.load.image("sky", "assets/sky.png");
+  this.load.image("ground", "assets/platform.png");
+  this.load.image("star", "assets/star.png");
+  this.load.image("bomb", "assets/bomb.png");
+  this.load.spritesheet("dude", "assets/dude.png", { frameWidth: 32, frameHeight: 48 });
 }
 
-// Request first frame
-requestAnimationFrame(update);
+// Define create function
+function create() {
+  // Add sky background
+  this.add.image(400, 300, "sky");
+  
+  // Create platforms group
+  platforms = this.physics.add.staticGroup();
+  
+  // Add ground platform
+  platforms.create(400, 568, "ground").setScale(2).refreshBody();
+  
+  // Add floating platforms
+  platforms.create(600, 400, "ground");
+  platforms.create(50, 250, "ground");
+  platforms.create(750, 220, "ground");
+  
+  // Add player sprite
+  player = this.physics.add.sprite(100, 450, "dude");
+  player.setBounce(0.2);
+  player.setCollideWorldBounds(true);
+  
+  // Add player animations
+  this.anims.create({
+    key: "left",
+    frames: this.anims.generateFrameNumbers("dude", { start: 0, end: 3 }),
+    frameRate: 10,
+    repeat: -1
+  });
+  this.anims.create({
+    key: "turn",
+    frames: [ { key: "dude", frame: 4 } ],
+    frameRate: 20
+  });
+  this.anims.create({
+    key: "right",
+    frames: this.anims.generateFrameNumbers("dude", { start: 5, end: 8 }),
+    frameRate: 10,
+    repeat: -1
+  });
+  
+  // Add cursor key inputs
+  cursors = this.input.keyboard.createCursorKeys();
+  
+  // Add stars group and collider
+  let stars = this.physics.add.group({
+   
+
