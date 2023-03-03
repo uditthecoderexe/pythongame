@@ -77,9 +77,9 @@ function create() {
   });
   
   // Add cursor key inputs
-  cursors = this.input.keyboard.createCursorKeys();
-  
-  // Add stars group and collider
-  let stars = this.physics.add.group({
+  cursors = this.input.keyboard.addKeys({
+    up: Phaser.Input.Keyboard.KeyCodes.W,
+    down
+
    
 
